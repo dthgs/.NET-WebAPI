@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen(opts =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Configuration.GetValue<bool>("UseSwagger"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -32,23 +32,7 @@ app.UseAuthorization();
  /** Minimal API routes **/
 app.MapGet("/error", () => Results.Problem());
 app.MapGet("/error/test", () => { throw new Exception("test"); }); // Testing the DeveloperExceptionPageMiddleware
-app.MapGet("/BoardGames", () => new[] {
-    new BoardGame() {
-        Id = 1,
-        Name = "Axis & Allies",
-        Year = 1981
-    },
-    new BoardGame() {
-        Id = 2,
-        Name = "Citadels",
-        Year = 2000
-    },
-    new BoardGame() {
-        Id = 3,
-        Name = "Terraforming Mars",
-        Year = 2016
-    }
-});
 
 app.MapControllers();
+
 app.Run();
