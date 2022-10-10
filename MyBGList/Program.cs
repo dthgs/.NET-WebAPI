@@ -21,6 +21,15 @@ builder.Services.AddCors(options =>
             cfg.AllowAnyMethod();
         }
     );
+    options.AddPolicy(
+        name: "AnyOrigin_GetOnly",
+        cfg =>
+        {
+            cfg.AllowAnyOrigin();
+            cfg.AllowAnyHeader();
+            cfg.WithMethods("GET");
+        }
+    );
 });
 
 builder.Services.AddControllers();
@@ -71,7 +80,7 @@ app.MapGet(
 
 app.MapGet(
     "/cod/test",
-    [EnableCors("AnyOrigin")]
+    [EnableCors("AnyOrigin_GetOnly")]
     [ResponseCache(NoStore = true)]
     () =>
         Results.Text(
