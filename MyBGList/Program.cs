@@ -1,15 +1,34 @@
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using MyBGList;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Executed at the start of the application to register and configure the required services and middlewares to handle the HTTP request & response pipeline
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(cfg =>
+    {
+        cfg.WithOrigins(builder.Configuration["AllowedOrigins"]);
+        cfg.AllowAnyHeader();
+        cfg.AllowAnyMethod();
+    });
+    options.AddPolicy(
+        name: "AnyOrigin",
+        cfg =>
+        {
+            cfg.AllowAnyOrigin();
+            cfg.AllowAnyHeader();
+            cfg.AllowAnyMethod();
+        }
+    );
+});
 
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(opts => 
-    opts.ResolveConflictingActions(apiDesc =>  apiDesc.First()) //  deal with routing conflict situations (not encouraged, keeping it for now)
+builder.Services.AddSwaggerGen(
+    opts => opts.ResolveConflictingActions(apiDesc => apiDesc.First()) //  Deal with routing conflict situations (not encouraged, keeping it for now)
 );
 
 var app = builder.Build();
@@ -22,16 +41,51 @@ if (app.Configuration.GetValue<bool>("UseSwagger"))
 }
 
 if (app.Configuration.GetValue<bool>("UseDeveloperExceptionPage"))
-    app.UseDeveloperExceptionPage(); // captures exceptions from the HTTP pipeline and generate an HTML error page
+    app.UseDeveloperExceptionPage(); // Captures exceptions from the HTTP pipeline and generate an HTML error page
 else
-    app.UseExceptionHandler("/error"); // sends relevant error info to a customizable handler
+    app.UseExceptionHandler("/error"); // Sends relevant error info to a customizable handler
 
 app.UseHttpsRedirection();
+
+app.UseCors();
+
 app.UseAuthorization();
 
- /** Minimal API routes **/
-app.MapGet("/error", () => Results.Problem());
-app.MapGet("/error/test", () => { throw new Exception("test"); }); // Testing the DeveloperExceptionPageMiddleware
+/** Minimal API **/
+app.MapGet(
+    "/error",
+    [EnableCors("AnyOrigin")]
+    [ResponseCache(NoStore = true)]
+    () => Results.Problem()
+);
+
+app.MapGet(
+    "/error/test",
+    [EnableCors("AnyOrigin")]
+    [ResponseCache(NoStore = true)]
+    () =>
+    {
+        throw new Exception("test");
+    }
+);
+
+app.MapGet(
+    "/cod/test",
+    [EnableCors("AnyOrigin")]
+    [ResponseCache(NoStore = true)]
+    () =>
+        Results.Text(
+            "<script>"
+                + "window.alert('Your client supports JavaScript!"
+                + "\\r\\n\\r\\n"
+                + $"Server time (UTC): {DateTime.UtcNow.ToString("o")}"
+                + "\\r\\n"
+                + "Client time (UTC): ' + new Date().toISOString());"
+                + "</script>"
+                + "<noscript>Your client does not support JavaScript</noscript>",
+            "text/html"
+        )
+);
 
 app.MapControllers();
 
