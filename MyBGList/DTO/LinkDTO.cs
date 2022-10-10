@@ -8,11 +8,11 @@ namespace MyBGList.DTO
             Rel = rel;
             Type = type;
         }
- 
+
         public string Href { get; private set; }
- 
+
         public string Rel { get; private set; }
- 
+
         public string Type { get; private set; }
     }
 }

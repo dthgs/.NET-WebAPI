@@ -20,28 +20,34 @@ namespace MyBGList.Controllers
         {
             return new RestDTO<BoardGame[]>()
             {
-                Data = new BoardGame[] {
-                    new BoardGame() {
+                Data = new BoardGame[]
+                {
+                    new BoardGame()
+                    {
                         Id = 1,
                         Name = "Axis & Allies",
                         Year = 1981
                     },
-                    new BoardGame() {
+                    new BoardGame()
+                    {
                         Id = 2,
                         Name = "Citadels",
                         Year = 2000
                     },
-                    new BoardGame() {
+                    new BoardGame()
+                    {
                         Id = 3,
                         Name = "Terraforming Mars",
                         Year = 2016
                     }
                 },
-                Links = new List<LinkDTO> {
+                Links = new List<LinkDTO>
+                {
                     new LinkDTO(
                         Url.Action(null, "BoardGames", null, Request.Scheme)!,
                         "self",
-                        "GET"),
+                        "GET"
+                    ),
                 }
             };
         }
