@@ -50,13 +50,16 @@ app.UseAuthorization();
 app.MapGet("/error", 
     [EnableCors("AnyOrigin")]
     [ResponseCache(NoStore = true)] () => 
-        Results.Problem());
+        Results.Problem()
+    );
+
 app.MapGet("/error/test", 
     [EnableCors("AnyOrigin")]
     [ResponseCache(NoStore = true)] () =>
     { 
         throw new Exception("test"); 
     });
+
 app.MapGet("/cod/test",
     [EnableCors("AnyOrigin")]
     [ResponseCache(NoStore = true)] () =>
@@ -70,7 +73,6 @@ app.MapGet("/cod/test",
         "<noscript>Your client does not support JavaScript</noscript>",
         "text/html"
     ));
-
 
 app.MapControllers();
 
