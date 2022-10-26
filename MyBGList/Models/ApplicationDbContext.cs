@@ -4,16 +4,14 @@ namespace MyBGList.Models
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
         {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // Used to further configure the model after all the default conventions
-            // Fill Navigation Properties
 
             modelBuilder.Entity<BoardGames_Domains>()
                 .HasKey(i => new { i.BoardGameId, i.DomainId });
@@ -41,7 +39,6 @@ namespace MyBGList.Models
                 .HasForeignKey(f => f.BoardGameId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
-
             modelBuilder.Entity<BoardGames_Mechanics>()
                 .HasOne(o => o.Mechanic)
                 .WithMany(m => m.BoardGames_Mechanics)

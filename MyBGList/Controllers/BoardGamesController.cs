@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 using MyBGList.DTO;
 using MyBGList.Models;
 
@@ -8,48 +10,40 @@ namespace MyBGList.Controllers
     [ApiController]
     public class BoardGamesController : ControllerBase
     {
+        private readonly ApplicationDbContext _context;
+
         private readonly ILogger<BoardGamesController> _logger;
 
-        public BoardGamesController(ILogger<BoardGamesController> logger)
+        public BoardGamesController(ApplicationDbContext context, ILogger<BoardGamesController> logger)
         {
+            _context = context;
             _logger = logger;
         }
 
         [HttpGet(Name = "GetBoardGames")]
-        [ResponseCache(NoStore = true)]
-        // [ResponseCache(Location = ResponseCacheLocation.Any, Duration = 60)]
-        public RestDTO<BoardGame[]> Get()
+        [ResponseCache(Location = ResponseCacheLocation.Any, Duration = 60)]
+        public async Task<RestDTO<BoardGame[]>> Get(int pageIndex = 0, int pageSize = 10, string sortColumn = "Name", string sortOrder = "ASC")
         {
+            var query = _context.BoardGames
+                .OrderBy($"{sortColumn} {sortOrder}")
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize);
+
             return new RestDTO<BoardGame[]>()
             {
-                Data = new BoardGame[]
-                {
-                    new BoardGame()
-                    {
-                        Id = 1,
-                        Name = "Axis & Allies",
-                        Year = 1981
-                    },
-                    new BoardGame()
-                    {
-                        Id = 2,
-                        Name = "Citadels",
-                        Year = 2000
-                    },
-                    new BoardGame()
-                    {
-                        Id = 3,
-                        Name = "Terraforming Mars",
-                        Year = 2016
-                    }
-                },
-                Links = new List<LinkDTO>
-                {
+                Data = await query.ToArrayAsync(),
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                RecordCount = await _context.BoardGames.CountAsync(),
+                Links = new List<LinkDTO> {
                     new LinkDTO(
-                        Url.Action(null, "BoardGames", null, Request.Scheme)!,
+                        Url.Action(
+                            null,
+                            "BoardGames",
+                            new { pageIndex, pageSize },
+                            Request.Scheme)!,
                         "self",
-                        "GET"
-                    ),
+                        "GET"),
                 }
             };
         }

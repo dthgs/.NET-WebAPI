@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyBGList.Models
 {
-    [Table("BoardGames")] // Instruct EF Core to use the specified name for the DB table
+    [Table("BoardGames")]
     public class BoardGame
     {
         [Key]
