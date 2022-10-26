@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyBGList.Models
 {
-    [Table("Mechanic")]
+    [Table("Mechanics")]
     public class Mechanic
     {
         [Key]
@@ -13,12 +13,6 @@ namespace MyBGList.Models
         [Required]
         [MaxLength(200)]
         public string Name { get; set; } = null!;
-
-        [MaxLength(200)]
-        public string Notes { get; set; } = null!;
-
-        [Required]
-        public int Flags { get; set; }
 
         [Required]
         public DateTime CreatedDate { get; set; }
