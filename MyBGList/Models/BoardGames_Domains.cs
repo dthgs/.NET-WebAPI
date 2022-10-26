@@ -16,7 +16,7 @@ namespace MyBGList.Models
         public DateTime CreatedDate { get; set; }
 
         public BoardGame? BoardGame { get; set; }
-        
+
         public Domain? Domain { get; set; }
     }
 }

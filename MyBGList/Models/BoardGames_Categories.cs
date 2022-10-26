@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyBGList.Models
 {
-    public class BoardGames_Mechanics
+    public class BoardGames_Categories
     {
         [Key]
         [Required]
@@ -10,14 +10,14 @@ namespace MyBGList.Models
 
         [Key]
         [Required]
-        public int MechanicId { get; set; }
+        public int CategoryId { get; set; }
 
         [Required]
         public DateTime CreatedDate { get; set; }
 
         public BoardGame? BoardGame { get; set; }
 
-        public Mechanic? Mechanic { get; set; }
+        public Category? Category { get; set; }
 
     }
 }
