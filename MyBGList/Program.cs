@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using MyBGList;
+using Microsoft.EntityFrameworkCore;
+using MyBGList.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
     opts => opts.ResolveConflictingActions(apiDesc => apiDesc.First()) //  Deal with routing conflict situations (not encouraged, keeping it for now)
 );
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"))
+    );
 
 var app = builder.Build();
 
