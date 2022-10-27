@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using MyBGList.DTO;
 using MyBGList.Models;
+using System.ComponentModel.DataAnnotations;
+using MyBGList.Attributes;
 
 namespace MyBGList.Controllers
 {
@@ -22,7 +24,15 @@ namespace MyBGList.Controllers
 
         [HttpGet(Name = "GetBoardGames")]
         [ResponseCache(Location = ResponseCacheLocation.Any, Duration = 60)]
-        public async Task<RestDTO<BoardGame[]>> Get(int pageIndex = 0, int pageSize = 10, string? sortColumn = "Name", string? sortOrder = "ASC", string? filterQuery = null)
+        public async Task<RestDTO<BoardGame[]>> Get(
+            int pageIndex = 0,
+            [Range(1, 100)] int pageSize = 10,
+            string? sortColumn = "Name",
+            [SortOrderValidator] string? sortOrder = "ASC",
+            // [RegularExpression("ASC|DESC")] string? sortOrder = "ASC",
+            // [SortOrderValidator(ErrorMessage = "Custom error message")]
+            // [SortOrderValidator(AllowedValues = new[] { "ASC", "DESC", "OtherString" })],
+            string? filterQuery = null)
         {
             var query = _context.BoardGames.AsQueryable();
             if (!string.IsNullOrEmpty(filterQuery))
