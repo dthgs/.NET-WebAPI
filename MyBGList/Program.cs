@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBGList.Attributes;
 using MyBGList.Models;
+using MyBGList.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
