@@ -10,6 +10,10 @@ namespace MyBGList.Attributes
         {
         }
 
+        // [RegularExpression("ASC|DESC")] string? sortOrder = "ASC",
+        // [SortOrderValidator(ErrorMessage = "Custom error message")]
+        // [SortOrderValidator(AllowedValues = new[] { "ASC", "DESC", "OtherString" })],
+
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             var strValue = value as string;
