@@ -35,22 +35,36 @@ builder.Services.AddCors(options =>
     );
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    // Customize Model Binding errors
+    options.ModelBindingMessageProvider.SetValueIsInvalidAccessor(
+        (x) => $"The value '{x}' is invalid.");
+    options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
+        (x) => $"The field {x} must be a number.");
+    options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(
+        (x, y) => $"The value '{x}' is not valid for {y}.");
+    options.ModelBindingMessageProvider.SetMissingKeyOrValueAccessor(
+        () => $"A value is required.");
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(opts => {
-        opts.ResolveConflictingActions(apiDesc => apiDesc.First()); //  Deal with routing conflict situations (not encouraged, keeping it for now)
-        opts.ParameterFilter<SortColumnFilter>(); // Add sortColumn params to swagger/v1/swagger.json
-        opts.ParameterFilter<SortOrderFilter>();
-    }
+builder.Services.AddSwaggerGen(opts =>
+{
+    opts.ResolveConflictingActions(apiDesc => apiDesc.First()); //  Deal with routing conflict situations (not encouraged, keeping it for now)
+    opts.ParameterFilter<SortColumnFilter>(); // Add sortColumn params to swagger/v1/swagger.json
+    opts.ParameterFilter<SortOrderFilter>();
+}
 );
- 
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"))
-    );
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Configure ApiController's behavior
+//builder.Services.Configure<ApiBehaviorOptions>(options => // Replaced by the [ManualValidationFilter]...
+//    options.SuppressModelStateInvalidFilter = true);  // Execute action methods even if some of their input parameters are not valid
 
 var app = builder.Build();
 
