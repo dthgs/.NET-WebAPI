@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace MyBGList.Attributes
 {
-    public class ManualValidationFilterAttribute
-        : Attribute, IActionModelConvention
+    public class ManualValidationFilterAttribute : Attribute, IActionModelConvention
     {
         public void Apply(ActionModel action)
         {
