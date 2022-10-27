@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBGList.Attributes;
@@ -87,29 +88,33 @@ app.UseCors();
 app.UseAuthorization();
 
 /** Minimal API **/
-app.MapGet(
-    "/error",
+app.MapGet("/error",
     [EnableCors("AnyOrigin")]
-    [ResponseCache(NoStore = true)]
-    () => Results.Problem()
-);
+    [ResponseCache(NoStore = true)] (HttpContext context) =>
+    {
+        var exceptionHandler = context.Features.Get<IExceptionHandlerPathFeature>();
+       
+        // TODO: logging, sending notifications, and more
+       
+        var details = new ProblemDetails();
+        details.Detail = exceptionHandler?.Error.Message;
+        details.Extensions["traceId"] = System.Diagnostics.Activity.Current?.Id ?? context.TraceIdentifier;
+        details.Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1";
+        details.Status = StatusCodes.Status500InternalServerError;
+        return Results.Problem(details);
+    });
 
-app.MapGet(
-    "/error/test",
+app.MapGet("/error/test",
     [EnableCors("AnyOrigin")]
-    [ResponseCache(NoStore = true)]
-    () =>
+    [ResponseCache(NoStore = true)] () =>
     {
         throw new Exception("test");
-    }
-);
+    });
 
-app.MapGet(
-    "/cod/test",
+app.MapGet("/cod/test",
     [EnableCors("AnyOrigin_GetOnly")]
-    [ResponseCache(NoStore = true)]
-    () =>
-        Results.Text(
+    [ResponseCache(NoStore = true)] () => {
+        return Results.Text(
             "<script>"
                 + "window.alert('Your client supports JavaScript!"
                 + "\\r\\n\\r\\n"
@@ -119,8 +124,8 @@ app.MapGet(
                 + "</script>"
                 + "<noscript>Your client does not support JavaScript</noscript>",
             "text/html"
-        )
-);
+        );
+    });
 
 app.MapControllers();
 
