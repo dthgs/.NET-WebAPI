@@ -6,6 +6,8 @@ using MyBGList.Attributes;
 using MyBGList.Constants;
 using MyBGList.Models;
 using MyBGList.Swagger;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,18 @@ builder.Logging
     .AddSimpleConsole()
     .AddDebug()
     .AddApplicationInsights(builder.Configuration["Azure:ApplicationInsights:InstrumentationKey"]);
+
+
+builder.Host.UseSerilog((ctx, lc) => {
+    lc.WriteTo.MSSqlServer(
+      connectionString: ctx.Configuration.GetConnectionString("DefaultConnection"),
+      sinkOptions: new MSSqlServerSinkOptions
+      {
+          TableName = "LogEvents",
+          AutoCreateSqlTable = true
+      });
+},
+    writeToProviders: true); // Make Serilog pass the log events not only to its sinks, but also to other logging providers
 
 builder.Services.AddCors(options =>
 {
