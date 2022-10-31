@@ -3,10 +3,51 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBGList.Attributes;
+using MyBGList.Constants;
 using MyBGList.Models;
 using MyBGList.Swagger;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging
+    .ClearProviders() // Remove all pre-configured logging providers, then add what to keep after
+    .AddSimpleConsole()
+    .AddDebug()
+    .AddApplicationInsights(builder.Configuration["Azure:ApplicationInsights:InstrumentationKey"]);
+
+
+builder.Host.UseSerilog((ctx, lc) => {
+    lc.WriteTo.MSSqlServer(
+      connectionString: ctx.Configuration.GetConnectionString("DefaultConnection"),
+      sinkOptions: new MSSqlServerSinkOptions
+      {
+          TableName = "LogEvents",
+          AutoCreateSqlTable = true
+      },
+      columnOptions: new ColumnOptions()
+      {
+          AdditionalColumns = new SqlColumn[]
+            {
+                new SqlColumn()
+                {
+                    ColumnName = "SourceContext",
+                    PropertyName = "SourceContext",
+                    DataType = System.Data.SqlDbType.NVarChar
+                }
+            }
+      });
+    lc.Enrich.WithMachineName();
+    lc.Enrich.WithThreadId();
+    lc.WriteTo.File("Logs/log.txt",
+        rollingInterval: RollingInterval.Day,
+        outputTemplate:
+            "{Timestamp:HH:mm:ss} [{Level:u3}] " +
+            "[{MachineName} #{ThreadId}] " +
+            "{Message:lj}{NewLine}{Exception}");
+},
+    writeToProviders: true); // Make Serilog pass the log events not only to its sinks, but also to other logging providers
 
 builder.Services.AddCors(options =>
 {
@@ -59,7 +100,6 @@ builder.Services.AddSwaggerGen(opts =>
 }
 );
 
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -101,6 +141,9 @@ app.MapGet("/error",
         details.Extensions["traceId"] = System.Diagnostics.Activity.Current?.Id ?? context.TraceIdentifier;
         details.Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1";
         details.Status = StatusCodes.Status500InternalServerError;
+
+        app.Logger.LogError(CustomLogEvents.Error_Get, exceptionHandler?.Error, "An unhandled exception occurred.");
+
         return Results.Problem(details);
     });
 
