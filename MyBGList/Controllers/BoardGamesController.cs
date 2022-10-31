@@ -5,6 +5,7 @@ using MyBGList.DTO;
 using MyBGList.Models;
 using System.ComponentModel.DataAnnotations;
 using MyBGList.Attributes;
+using MyBGList.Constants;
 
 namespace MyBGList.Controllers
 {
@@ -26,6 +27,10 @@ namespace MyBGList.Controllers
         [ResponseCache(Location = ResponseCacheLocation.Any, Duration = 60)]
         public async Task<RestDTO<BoardGame[]>> Get([FromQuery] RequestDTO<BoardGameDTO> input)
         {
+            _logger.LogInformation(CustomLogEvents.BoardGamesController_Get, "Get method started.");
+            LogLevel logLevel = LogLevel.Debug;
+            _logger.LogInformation("This is a {logLevel} level log", logLevel);
+
             var query = _context.BoardGames.AsQueryable();
             if (!string.IsNullOrEmpty(input.FilterQuery))
                 query = query.Where(b => b.Name.Contains(input.FilterQuery));
