@@ -25,7 +25,20 @@ builder.Host.UseSerilog((ctx, lc) => {
       {
           TableName = "LogEvents",
           AutoCreateSqlTable = true
-      });
+      },
+      columnOptions: new ColumnOptions()
+      {
+          AdditionalColumns = new SqlColumn[]
+            {
+                new SqlColumn()
+                {
+                    ColumnName = "SourceContext",
+                    PropertyName = "SourceContext",
+                    DataType = System.Data.SqlDbType.NVarChar
+                }
+            }
+      }
+      );
 },
     writeToProviders: true); // Make Serilog pass the log events not only to its sinks, but also to other logging providers
 
