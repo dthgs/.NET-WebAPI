@@ -12,7 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging
     .ClearProviders() // Remove all pre-configured logging providers, then add what to keep after
     .AddSimpleConsole()
-    .AddDebug();
+    .AddDebug()
+    .AddApplicationInsights(builder.Configuration["Azure:ApplicationInsights:InstrumentationKey"]);
 
 builder.Services.AddCors(options =>
 {
