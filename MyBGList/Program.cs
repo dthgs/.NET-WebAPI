@@ -8,6 +8,11 @@ using MyBGList.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging
+    .ClearProviders() // Remove all pre-configured logging providers, then add what to keep after
+    .AddSimpleConsole()
+    .AddDebug();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(cfg =>
