@@ -40,6 +40,12 @@ builder.Host.UseSerilog((ctx, lc) => {
       });
     lc.Enrich.WithMachineName();
     lc.Enrich.WithThreadId();
+    lc.WriteTo.File("Logs/log.txt",
+        rollingInterval: RollingInterval.Day,
+        outputTemplate:
+            "{Timestamp:HH:mm:ss} [{Level:u3}] " +
+            "[{MachineName} #{ThreadId}] " +
+            "{Message:lj}{NewLine}{Exception}");
 },
     writeToProviders: true); // Make Serilog pass the log events not only to its sinks, but also to other logging providers
 
