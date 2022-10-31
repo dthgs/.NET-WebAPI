@@ -16,5 +16,7 @@ namespace MyBGList.Constants
         public const int MechanicsController_Post = 50320;
         public const int MechanicsController_Put = 50330;
         public const int MechanicsController_Delete = 50340;
+
+        public const int Error_Get = 50001;
     }
 }
