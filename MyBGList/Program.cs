@@ -37,8 +37,9 @@ builder.Host.UseSerilog((ctx, lc) => {
                     DataType = System.Data.SqlDbType.NVarChar
                 }
             }
-      }
-      );
+      });
+    lc.Enrich.WithMachineName();
+    lc.Enrich.WithThreadId();
 },
     writeToProviders: true); // Make Serilog pass the log events not only to its sinks, but also to other logging providers
 
