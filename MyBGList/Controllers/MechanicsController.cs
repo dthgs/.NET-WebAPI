@@ -24,7 +24,7 @@ namespace MyBGList.Controllers
         }
 
         [HttpGet(Name = "GetMechanics")]
-        [ResponseCache(Location = ResponseCacheLocation.Any, Duration = 60)]
+        [ResponseCache(CacheProfileName = "Any-60")]
         public async Task<RestDTO<Mechanic[]>> Get([FromQuery] RequestDTO<MechanicDTO> input)
         {
             var query = _context.Mechanics.AsQueryable();
@@ -55,7 +55,7 @@ namespace MyBGList.Controllers
         }
 
         [HttpPost(Name = "UpdateMechanic")]
-        [ResponseCache(NoStore = true)]
+        [ResponseCache(CacheProfileName = "NoCache")]
         public async Task<RestDTO<Mechanic?>> Post(MechanicDTO model)
         {
             var mechanic = await _context.Mechanics
@@ -88,7 +88,7 @@ namespace MyBGList.Controllers
         }
 
         [HttpDelete(Name = "DeleteMechanic")]
-        [ResponseCache(NoStore = true)]
+        [ResponseCache(CacheProfileName = "NoCache")]
         public async Task<RestDTO<Mechanic?>> Delete(int id)
         {
             var mechanic = await _context.Mechanics
