@@ -88,6 +88,14 @@ builder.Services.AddControllers(options =>
         (x, y) => $"The value '{x}' is not valid for {y}.");
     options.ModelBindingMessageProvider.SetMissingKeyOrValueAccessor(
         () => $"A value is required.");
+
+    options.CacheProfiles.Add("NoCache", new CacheProfile() { NoStore = true });
+    options.CacheProfiles.Add("Any-60",
+        new CacheProfile()
+        {
+            Location = ResponseCacheLocation.Any,
+            Duration = 60
+        });
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -107,6 +115,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //builder.Services.Configure<ApiBehaviorOptions>(options => // Replaced by the [ManualValidationFilter]...
 //    options.SuppressModelStateInvalidFilter = true);  // Execute action methods even if some of their input parameters are not valid
 
+builder.Services.AddResponseCaching(options => // Response Caching Middleware, halve default caching size limits
+{
+    options.MaximumBodySize = 32 * 1024 * 1024; // Maximum cacheable size for the response body, default 64mb
+    options.SizeLimit = 50 * 1024 * 1024; // Size limit for the response cache middleware, default 100mb
+});
+
+builder.Services.AddMemoryCache();
+
+/* builder.Services.AddDistributedSqlServerCache(options => // Sql distributed cache
+{
+    options.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.SchemaName = "dbo";
+    options.TableName = "AppCache";
+}); */
+
+builder.Services.AddStackExchangeRedisCache(options => // Redis distributed cache
+{
+    options.Configuration = builder.Configuration["Redis:ConnectionString"];
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -125,7 +153,20 @@ app.UseHttpsRedirection();
 
 app.UseCors();
 
+app.UseResponseCaching();
+
 app.UseAuthorization();
+
+app.Use((context, next) => // Custom middleware, add a default cache-control fallback behaviour
+{
+    context.Response.GetTypedHeaders().CacheControl =
+            new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+            {
+                NoCache = true,
+                NoStore = true
+            };
+    return next.Invoke();
+});
 
 /** Minimal API **/
 app.MapGet("/error",
@@ -168,6 +209,20 @@ app.MapGet("/cod/test",
                 + "<noscript>Your client does not support JavaScript</noscript>",
             "text/html"
         );
+    });
+
+app.MapGet("/cache/test/1",
+    [EnableCors("AnyOrigin")]
+    (HttpContext context) => {
+        context.Response.Headers["cache-control"] = "no-cache, no-store";
+        return Results.Ok();
+    });
+
+app.MapGet("/cache/test/2",
+    [EnableCors("AnyOrigin")]
+    (HttpContext context) =>
+    {
+        return Results.Ok();
     });
 
 app.MapControllers();
