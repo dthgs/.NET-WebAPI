@@ -170,6 +170,14 @@ app.MapGet("/cod/test",
         );
     });
 
+app.MapGet("/cache/test/1",
+    [EnableCors("AnyOrigin")]
+    (HttpContext context) => {
+        context.Response.Headers["cache-control"] = "no-cache, no-store";
+        return Results.Ok();
+    });
+
+
 app.MapControllers();
 
 app.Run();
