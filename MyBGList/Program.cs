@@ -127,6 +127,12 @@ app.UseCors();
 
 app.UseAuthorization();
 
+app.Use((context, next) => //  Custom middleware, add a default cache-control fallback behaviour
+{
+    context.Response.Headers["cache-control"] = "no-cache, no-store";
+    return next.Invoke();
+});
+
 /** Minimal API **/
 app.MapGet("/error",
     [EnableCors("AnyOrigin")]
@@ -177,6 +183,12 @@ app.MapGet("/cache/test/1",
         return Results.Ok();
     });
 
+app.MapGet("/cache/test/2",
+    [EnableCors("AnyOrigin")]
+    (HttpContext context) =>
+    {
+        return Results.Ok();
+    });
 
 app.MapControllers();
 
