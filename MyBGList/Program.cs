@@ -123,11 +123,16 @@ builder.Services.AddResponseCaching(options => // Response Caching Middleware, h
 
 builder.Services.AddMemoryCache();
 
-builder.Services.AddDistributedSqlServerCache(options =>
+/* builder.Services.AddDistributedSqlServerCache(options => // Sql distributed cache
 {
     options.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     options.SchemaName = "dbo";
     options.TableName = "AppCache";
+}); */
+
+builder.Services.AddStackExchangeRedisCache(options => // Redis distributed cache
+{
+    options.Configuration = builder.Configuration["Redis:ConnectionString"];
 });
 
 var app = builder.Build();
