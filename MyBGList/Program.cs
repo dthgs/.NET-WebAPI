@@ -121,6 +121,8 @@ builder.Services.AddResponseCaching(options => // Response Caching Middleware, h
     options.SizeLimit = 50 * 1024 * 1024; // Size limit for the response cache middleware, default 100mb
 });
 
+builder.Services.AddMemoryCache();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
