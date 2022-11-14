@@ -115,6 +115,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //builder.Services.Configure<ApiBehaviorOptions>(options => // Replaced by the [ManualValidationFilter]...
 //    options.SuppressModelStateInvalidFilter = true);  // Execute action methods even if some of their input parameters are not valid
 
+builder.Services.AddResponseCaching(options => // Response Caching Middleware, halve default caching size limits
+{
+    options.MaximumBodySize = 32 * 1024 * 1024; // Maximum cacheable size for the response body, default 64mb
+    options.SizeLimit = 50 * 1024 * 1024; // Size limit for the response cache middleware, default 100mb
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -132,6 +138,8 @@ else
 app.UseHttpsRedirection();
 
 app.UseCors();
+
+app.UseResponseCaching();
 
 app.UseAuthorization();
 
