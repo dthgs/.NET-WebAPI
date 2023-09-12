@@ -13,3 +13,5 @@ namespace MyBGList.DTO
         public int? Year { get; set; }
     }
 }
+
+// Making changes
